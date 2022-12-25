@@ -18,7 +18,7 @@ class VOCSegmentation(data.Dataset):
         with open(os.path.join(txt_path), "r") as f:
             file_names = [x.strip() for x in f.readlines() if len(x.strip()) > 0]
 
-        self.images = [os.path.join(image_dir, x + ".png") for x in file_names]
+        self.images = [os.path.join(image_dir, x + ".jpg") for x in file_names]
         self.masks = [os.path.join(mask_dir, x + ".png") for x in file_names]
         assert (len(self.images) == len(self.masks))
         self.transforms = transforms
