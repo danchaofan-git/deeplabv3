@@ -42,8 +42,8 @@ class SegmentationPresetEval:
 
 
 def get_transform(train):
-    base_size = 520
-    crop_size = 480
+    base_size = 640
+    crop_size = 640
 
     return SegmentationPresetTrain(base_size, crop_size) if train else SegmentationPresetEval(base_size)
 
@@ -184,8 +184,8 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description="pytorch deeplabv3 training")
 
-    parser.add_argument("--data-path", default="D:\dataset/fcndata", help="VOCdevkit root")
-    parser.add_argument("--num-classes", default=3, type=int)
+    parser.add_argument("--data-path", default="D:\dataset/seg", help="VOCdevkit root")
+    parser.add_argument("--num-classes", default=1, type=int)
     parser.add_argument("--aux", default=True, type=bool, help="auxilier loss")
     parser.add_argument("--device", default="cuda", help="training device")
     parser.add_argument("-b", "--batch-size", default=2, type=int)
