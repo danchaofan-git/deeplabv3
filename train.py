@@ -6,9 +6,10 @@ import torch
 
 from src import deeplabv3_resnet50
 from train_utils import train_one_epoch, evaluate, create_lr_scheduler
-from my_dataset import VOCSegmentation
+from my_dataset import VOCSegmentation, CityScapeSegmentation
 import transforms as T
 from src.deeplabv3_model import download_weights
+
 
 class SegmentationPresetTrain:
     def __init__(self, base_size, crop_size, hflip_prob=0.5, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)):
@@ -83,16 +84,20 @@ def main(args):
     results_file = "results{}.txt".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
 
     # VOCdevkit -> VOC2012 -> ImageSets -> Segmentation -> train.txt
-    train_dataset = VOCSegmentation(args.data_path,
-                                    year="2012",
-                                    transforms=get_transform(train=True),
-                                    txt_name="train.txt")
+    train_dataset = CityScapeSegmentation(args.data_path,
+                                          year="2012",
+                                          transforms=get_transform(train=True),
+                                          images_name="trainImages.txt",
+                                          labels_name='trainLabels.txt'
+                                          )
 
     # VOCdevkit -> VOC2012 -> ImageSets -> Segmentation -> val.txt
-    val_dataset = VOCSegmentation(args.data_path,
-                                  year="2012",
-                                  transforms=get_transform(train=False),
-                                  txt_name="val.txt")
+    val_dataset = CityScapeSegmentation(args.data_path,
+                                        year="2012",
+                                        transforms=get_transform(train=False),
+                                        images_name="valImages.txt",
+                                        labels_name='valLabels.txt'
+                                        )
 
     num_workers = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])
     train_loader = torch.utils.data.DataLoader(train_dataset,
@@ -100,14 +105,15 @@ def main(args):
                                                num_workers=num_workers,
                                                shuffle=True,
                                                pin_memory=True,
-                                               collate_fn=train_dataset.collate_fn)
+                                               collate_fn=train_dataset.collate_fn,
+                                               drop_last=True)
 
     val_loader = torch.utils.data.DataLoader(val_dataset,
                                              batch_size=1,
                                              num_workers=num_workers,
                                              pin_memory=True,
-                                             collate_fn=val_dataset.collate_fn)
-
+                                             collate_fn=val_dataset.collate_fn,
+                                             drop_last=True)
     model = create_model(aux=args.aux, num_classes=num_classes)
     model.to(device)
 
@@ -184,14 +190,14 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description="pytorch deeplabv3 training")
 
-    parser.add_argument("--data-path", default="D:\dataset/seg", help="VOCdevkit root")
-    parser.add_argument("--num-classes", default=1, type=int)
+    parser.add_argument("--data-path", default="F:\dataset\cityscapes\Cityspaces", help="VOCdevkit root")
+    parser.add_argument("--num-classes", default=19, type=int)
     parser.add_argument("--aux", default=True, type=bool, help="auxilier loss")
     parser.add_argument("--device", default="cuda", help="training device")
     parser.add_argument("-b", "--batch-size", default=2, type=int)
     parser.add_argument("--epochs", default=100, type=int, metavar="N",
                         help="number of total epochs to train")
-    parser.add_argument("--save_freq", default=1, type=int, help="save frequency")
+    parser.add_argument("--save_freq", default=2, type=int, help="save frequency")
     parser.add_argument('--lr', default=0.0001, type=float, help='initial learning rate')
     parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                         help='momentum')

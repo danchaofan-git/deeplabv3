@@ -17,9 +17,9 @@ def time_synchronized():
 
 def main():
     aux = False  # inference time not need aux_classifier
-    classes = 20
-    weights_path = "./save_weights/model_29.pth"
-    img_path = "./test.jpg"
+    classes = 1
+    weights_path = "./save_weights/model_199.pth"
+    img_path = "./1.jpg"
     palette_path = "./palette.json"
     assert os.path.exists(weights_path), f"weights {weights_path} not found."
     assert os.path.exists(img_path), f"image {img_path} not found."
