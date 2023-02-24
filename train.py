@@ -6,7 +6,7 @@ import torch
 
 from src import deeplabv3_resnet50
 from train_utils import train_one_epoch, evaluate, create_lr_scheduler
-from my_dataset import VOCSegmentation, CityScapeSegmentation
+from my_dataset import VOCSegmentation, CityScapeSegmentation, KaggleCityScapeSegmentation
 import transforms as T
 from src.deeplabv3_model import download_weights
 
@@ -43,8 +43,8 @@ class SegmentationPresetEval:
 
 
 def get_transform(train):
-    base_size = 640
-    crop_size = 640
+    base_size = 520
+    crop_size = 480
 
     return SegmentationPresetTrain(base_size, crop_size) if train else SegmentationPresetEval(base_size)
 
@@ -84,20 +84,20 @@ def main(args):
     results_file = "results{}.txt".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
 
     # VOCdevkit -> VOC2012 -> ImageSets -> Segmentation -> train.txt
-    train_dataset = CityScapeSegmentation(args.data_path,
-                                          year="2012",
-                                          transforms=get_transform(train=True),
-                                          images_name="trainImages.txt",
-                                          labels_name='trainLabels.txt'
-                                          )
+    train_dataset = KaggleCityScapeSegmentation(voc_root=args.data_path,
+                                                txt_root=args.txt_path,
+                                                transforms=get_transform(train=True),
+                                                images_name="trainImages.txt",
+                                                labels_name='trainLabels.txt'
+                                                )
 
     # VOCdevkit -> VOC2012 -> ImageSets -> Segmentation -> val.txt
-    val_dataset = CityScapeSegmentation(args.data_path,
-                                        year="2012",
-                                        transforms=get_transform(train=False),
-                                        images_name="valImages.txt",
-                                        labels_name='valLabels.txt'
-                                        )
+    val_dataset = KaggleCityScapeSegmentation(voc_root=args.data_path,
+                                              txt_root=args.txt_path,
+                                              transforms=get_transform(train=False),
+                                              images_name="valImages.txt",
+                                              labels_name='valLabels.txt'
+                                              )
 
     num_workers = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])
     train_loader = torch.utils.data.DataLoader(train_dataset,
@@ -191,6 +191,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="pytorch deeplabv3 training")
 
     parser.add_argument("--data-path", default="F:\dataset\cityscapes\Cityspaces", help="VOCdevkit root")
+    parser.add_argument("--txt-path", default=r"F:\dataset\cityscapes\Cityspaces\VOCdevkit\VOC2012\ImageSets\Segmentation", help="ImageSets ID")
     parser.add_argument("--num-classes", default=19, type=int)
     parser.add_argument("--aux", default=True, type=bool, help="auxilier loss")
     parser.add_argument("--device", default="cuda", help="training device")
