@@ -48,12 +48,5 @@
 * 在使用预测脚本时，要将'weights_path'设置为你自己生成的权重路径。
 * 使用validation文件时，注意确保你的验证集或者测试集中必须包含每个类别的目标，并且使用时只需要修改'--num-classes'、'--aux'、'--data-path'和'--weights'即可，其他代码尽量不要改动
 
-## 如果对DeepLabV3原理不是很理解可参考我的bilibili
-* https://www.bilibili.com/video/BV1Jb4y1q7j7
-
-
-## 进一步了解该项目，以及对DeepLabV3代码的分析可参考我的bilibili
-* https://www.bilibili.com/video/BV1TD4y1c7Wx
-
 ## Pytorch官方实现的DeeplabV3网络框架图
 ![deeplabv3_resnet50_pytorch](./deeplabv3_resnet50.png)
